@@ -1,5 +1,17 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const moongose = require('mongoose');
+const Thing = require('./models/thing');
+
 const app = express();
+
+moongose.connect('mongodb+srv://luiz:pyduNh1tZQhAlEol@cluster0-jvfgf.mongodb.net/test?retryWrites=true')
+  .then(() => {
+    console.log('mongoDB Database created!');
+  }).catch((err) => {
+    console.log('Unable to connect');
+    console.log('err', err);
+  });
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -8,26 +20,40 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/stuff', (req, resp, next) => {
-  const stuff = [
-    {
-      _id: '11reer',
-      title: 'first thing',
-      description: 'first thing created',
-      imageUrl: 'https://imgix.ranker.com/user_node_img/50043/1000848545/original/sacred-clay-photo-u1?w=650&q=50&fm=pjpg&fit=crop&crop=faces',
-      price: 4900,
-      userId: 'ffesf'
-    },
-    {
-      _id: 'a22efafea',
-      title: 'second thing',
-      description: 'second thing created',
-      imageUrl: 'https://imgix.ranker.com/user_node_img/50043/1000848545/original/sacred-clay-photo-u1?w=650&q=50&fm=pjpg&fit=crop&crop=faces',
-      price: 5400,
-      userId: 'ffesf'
+app.use(bodyParser.json());
+
+app.post('/api/stuff', (req, res, next) => {
+  const thing = new Thing({
+    title: req.body.title,
+    description: req.body.description,
+    imageUrl: req.body.imageUrl,
+    price: req.body.price,
+    userId: req.body.userId
+  });
+  thing.save().then(
+    () => {
+      res.status(201).json({
+        message: 'thing saved'
+      })
+    }).catch( (error) => {
+      res.status(400).json({
+        error: error
+      });
+    });
+});
+
+app.use('/api/stuff', (req, res, next) => {
+  Thing.find().then(
+    (thing) => {
+      res.status(200).json(thing);
     }
-  ];
-  resp.status(200).json(stuff);
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
 });
 
 module.exports = app;
