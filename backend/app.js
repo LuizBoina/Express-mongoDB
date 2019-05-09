@@ -58,10 +58,51 @@ app.get('/api/stuff/:id', (req, res, next) => {
   );
 });
 
+app.put('/api/stuff/:id', (req,res, next) => {
+  const thing = new Thing({
+    _id: req.params.id,  
+    title: req.body.title,
+    description: req.body.description,
+    imageUrl: req.body.imageUrl,
+    price: req.body.price,
+    userId: req.body.userId
+  }); 
+  Thing.updateOne({ _id: req.params.id }, thing).then(
+    () => {
+      res.status(201).json({
+        message: "changed correctely"
+      });
+    }  
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+});
+
+app.delete('/api/stuff/:id', (req, res, next) => {
+  Thing.deleteOne({_id: req.params.id}).then(
+    () => {
+      res.status(200).json({
+        message: 'Object deleted'
+      });
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      })
+    }
+  );
+});
+
+
 app.use('/api/stuff', (req, res, next) => {
   Thing.find().then(
     (thing) => {
-      res.status(200).json(thing);
+      res.status(200).json(thing); 
     }
   ).catch(
     (error) => {
