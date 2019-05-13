@@ -4,6 +4,7 @@ const moongose = require('mongoose');
 const stuffRoutes = require('./routes/stuff');
 const userRoutes = require('./routes/user');
 const app = express();
+const path = require('path');
 
 moongose.connect('mongodb+srv://luiz:pyduNh1tZQhAlEol@cluster0-jvfgf.mongodb.net/test?retryWrites=true')
   .then(() => {
@@ -21,7 +22,7 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
-
+app.use('/images', express.static(path.join(__dirname, 'images')))
 app.use('/api/stuff', stuffRoutes);
 app.use('/api/auth', userRoutes);
 
